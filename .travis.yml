@@ -1,0 +1,11 @@
+language: node_js
+node_js: node
+services:
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: Gwiq+u6X9ylhhAyR2TYNluhrke+f3vW7pIVcwFmSdtIGs/hkBzgbIwP72QVqUfwx1W9EZwZbWoR27/H8jy8uC5CDtwxai0NyYs8KDup9lAQLNN0QToJFmkCsohW3IVyMwsndSvVBvwR89LiHQ2qwazSzZDbkT+JiQWRT8UCwDALTTRmw/sF+mCSI6nqfEh+9XWusgI9LopD6gLrLoIgOMsJvcuMDPU9iX/EONDgF5+bAanxF+7MqkyzgwsMX5YR8XLbcfwpCzuDuECs8myDWPwUBN4JUdq1/j/bCyaXRu73kTDSQp1HULe9j4W4NuB4hvPQRZNxKjcRxj/1MBw9taINMh+iUI4Azd9g6hdw2H0bAQdAwdNUzEtSBdKFJ/ix6ghP4nIFYz8RqVZIwLI0MdPy1pb4Exorm4M3Qf9JS1OxXimdFHPubzDH6Niat5SKjBS7TVkZrF1SJAN64QqxsHGRUY2NKAoKIlBPEHCmvgAlfxDzKW4E9fWDm18u4OUbFgaWIs4wudCQzR971+rs6H68WGmGkMXdolRLW2Euu0gLFSNDtmSEn4RDKW1DsWUoyK3ujBFXso3TDx1YfFNXMtLA+IIWT/3Li783Pg6N0dLNbB0h1bmspNUD4LBSftoNnZUlzLNjbdUy01ATnZsq8PC2y3QDAlhu2khRPzo1DOqM=
+  app: treblebase-server
+  on:
+    repo: ryandthorn/treblebase-server

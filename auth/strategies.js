@@ -6,7 +6,7 @@ const { Artist } = require("../users/models");
 const { JWT_SECRET } = require("../config");
 
 const localStrategy = new LocalStrategy(
-  { usernameField: "email", session: false },
+  { usernameField: "email" },
   (email, password, callback) => {
     let user;
     Artist.findOne({ email })
@@ -15,7 +15,7 @@ const localStrategy = new LocalStrategy(
         if (!user) {
           return Promise.reject({
             reason: "LoginError",
-            message: "Incorrect email or password"
+            message: "Incorrect email"
           });
         }
         return user.validatePassword(password);
@@ -24,7 +24,7 @@ const localStrategy = new LocalStrategy(
         if (!isValid) {
           return Promise.reject({
             reason: "LoginError",
-            message: "Incorrect email or password"
+            message: "Incorrect password"
           });
         }
         return callback(null, user);

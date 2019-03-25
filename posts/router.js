@@ -10,9 +10,13 @@ router.get("/", (req, res) => {
     options[key] = req.query[key];
   }
 
-  Post.find(options).then(posts => {
-    res.json({ posts: posts.map(post => post.serialize()) });
-  });
+  Post.find(options)
+    .then(posts => {
+      res.json({ posts: posts.map(post => post.serialize()) });
+    })
+    .catch(err => {
+      res.json({ message: "Search error" });
+    });
 });
 
 module.exports = { router };

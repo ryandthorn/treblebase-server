@@ -1,6 +1,6 @@
-'use strict';
-const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
+"use strict";
+const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 
 mongoose.Promise = global.Promise;
 
@@ -14,23 +14,25 @@ const ArtistSchema = mongoose.Schema({
   age: String,
   recordings: [String],
   photos: [String],
-  headshot: String
+  headshot: String,
+  bio: String,
+  resumeUrl: String
 });
 
-ArtistSchema.methods.serialize = function () {
+ArtistSchema.methods.serialize = function() {
   return {
-    email: this.email || ''
+    email: this.email || ""
   };
 };
 
-ArtistSchema.methods.validatePassword = function (password) {
+ArtistSchema.methods.validatePassword = function(password) {
   return bcrypt.compare(password, this.password);
 };
 
-ArtistSchema.statics.hashPassword = function (password) {
+ArtistSchema.statics.hashPassword = function(password) {
   return bcrypt.hash(password, 10);
 };
 
-const Artist = mongoose.model('Artist', ArtistSchema);
+const Artist = mongoose.model("Artist", ArtistSchema);
 
 module.exports = { Artist };

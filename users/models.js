@@ -7,7 +7,13 @@ mongoose.Promise = global.Promise;
 const ArtistSchema = mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: {
+    type: String,
+    trim: true,
+    unique: "Email already exists",
+    match: [/.+\@.+\..+/, "Please fill a valid email address"],
+    required: "Email is required"
+  },
   password: { type: String, required: true },
   website: String,
   location: String,
@@ -24,6 +30,10 @@ ArtistSchema.methods.serialize = function() {
     email: this.email || ""
   };
 };
+
+ArtistSchema.virtual("fullName").get(function() {
+  return `${this.firstName} ${this.lastName}`;
+});
 
 ArtistSchema.methods.validatePassword = function(password) {
   return bcrypt.compare(password, this.password);

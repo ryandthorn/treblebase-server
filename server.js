@@ -7,26 +7,20 @@ const mongoose = require("mongoose");
 const { PORT, TEST_DATABASE_URL } = require("./config");
 const { router: usersRouter } = require("./users");
 const { router: authRouter, localStrategy, jwtStrategy } = require("./auth");
-
-mongoose.set("useCreateIndex", true);
+const { router: postsRouter } = require("./posts");
 
 const app = express();
-
-app.use(morgan("common"));
-
-app.use(cors());
+const jwtAuth = passport.authenticate("jwt", { session: false });
 
 passport.use(localStrategy);
 passport.use(jwtStrategy);
+mongoose.set("useCreateIndex", true);
+app.use(cors());
+app.use(morgan("common"));
 
 app.use("/api/users/", usersRouter);
 app.use("/api/auth/", authRouter);
-const jwtAuth = passport.authenticate("jwt", { session: false });
-
-app.get("/api/protected", jwtAuth, (req, res) => {
-  return res.json({ data: "Test successful" });
-});
-
+app.use("/api/posts/", jwtAuth, postsRouter);
 app.use("/api/*", (req, res) => res.status(404).json({ message: "Not Found" }));
 
 let server;

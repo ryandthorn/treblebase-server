@@ -17,6 +17,7 @@ const postSchema = mongoose.Schema({
 
 postSchema.methods.serialize = function() {
   return {
+    id: this._id,
     postedBy: this.postedBy,
     company: this.company,
     title: this.title,

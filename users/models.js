@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 
 const ArtistSchema = mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  firstName: { type: String, required: true, trim: true },
+  lastName: { type: String, required: true, trim: true },
   email: {
     type: String,
     trim: true,
@@ -14,15 +14,16 @@ const ArtistSchema = mongoose.Schema({
     match: [/.+\@.+\..+/, "Please fill a valid email address"],
     required: "Email is required"
   },
-  password: { type: String, required: true },
-  website: String,
-  location: String,
-  age: String,
-  recordings: [String],
-  photos: [String],
-  headshot: String,
-  bio: String,
-  resumeUrl: String
+  password: { type: String, required: true, minlength: 8, maxlength: 72 },
+  website: { type: String, trim: true },
+  region: String,
+  location: { type: String, trim: true },
+  age: Number,
+  recordings: [{ type: String, trim: true }],
+  photos: [{ type: String, trim: true }],
+  headshot: { type: String, trim: true },
+  bio: { type: String, trim: true },
+  resumeUrl: { type: String, trim: true }
 });
 
 ArtistSchema.methods.serialize = function() {

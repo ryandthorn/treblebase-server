@@ -11,6 +11,7 @@ const postSchema = mongoose.Schema({
   open: Boolean,
   fee: String,
   picture: String,
+  region: String,
   location: String
 });
 
@@ -24,6 +25,7 @@ postSchema.methods.serialize = function() {
     open: this.open,
     fee: this.fee,
     picture: this.picture,
+    region: this.region,
     location: this.location
   };
 };

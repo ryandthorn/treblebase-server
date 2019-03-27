@@ -11,10 +11,10 @@ const ArtistSchema = mongoose.Schema({
     type: String,
     trim: true,
     unique: "Email already exists",
-    match: [/.+\@.+\..+/, "Please fill a valid email address"],
+    match: [/.+\@.+\..+/, "Please enter a valid email address"],
     required: "Email is required"
   },
-  password: { type: String, required: true, minlength: 8, maxlength: 72 },
+  password: { type: String, required: "Please enter a valid password (8-72 chars)", minlength: 8, maxlength: 72 },
   website: { type: String, trim: true },
   region: String,
   location: { type: String, trim: true },
@@ -26,21 +26,22 @@ const ArtistSchema = mongoose.Schema({
   resumeUrl: { type: String, trim: true }
 });
 
-ArtistSchema.methods.serialize = function() {
+ArtistSchema.methods.serialize = function () {
   return {
-    email: this.email || ""
+    email: this.email,
+    id: this._id
   };
 };
 
-ArtistSchema.virtual("fullName").get(function() {
+ArtistSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-ArtistSchema.methods.validatePassword = function(password) {
+ArtistSchema.methods.validatePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-ArtistSchema.statics.hashPassword = function(password) {
+ArtistSchema.statics.hashPassword = function (password) {
   return bcrypt.hash(password, 10);
 };
 

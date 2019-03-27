@@ -10,7 +10,7 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-describe("/api/users", function() {
+describe("/api/users", function () {
   const email = "example@email.com";
   const password = "unguessable";
   const firstName = "John";
@@ -18,19 +18,19 @@ describe("/api/users", function() {
 
   const user = { email, password, firstName, lastName };
 
-  before(function() {
+  before(function () {
     return runServer();
   });
 
-  after(function() {
+  after(function () {
     return closeServer();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     return Artist.deleteOne({ firstName: "John" });
   });
 
-  it("should create a new user on POST", function() {
+  it("should create a new user on POST", function () {
     return chai
       .request(app)
       .post("/api/users")
@@ -38,7 +38,7 @@ describe("/api/users", function() {
       .then(res => {
         expect(res).to.have.status(201);
         expect(res).to.be.an("object");
-        expect(res.body).to.have.keys("email");
+        expect(res.body).to.have.keys("email", "id");
         expect(res.body.email).to.equal(email);
         return Artist.findOne({ email });
       })
@@ -52,7 +52,7 @@ describe("/api/users", function() {
       });
   });
 
-  it("should return a validation error on invalid POST request", function() {
+  it("should return a validation error on invalid POST request", function () {
     return chai
       .request(app)
       .post("/api/users")

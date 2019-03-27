@@ -6,7 +6,6 @@ const { Artist } = require("./models");
 const jsonParser = bodyParser.json();
 const router = express.Router();
 
-// Post to register a new user
 router.post("/", jsonParser, (req, res) => {
   const requiredFields = ["email", "password", "firstName", "lastName"];
   const missingField = requiredFields.find(field => !(field in req.body));
@@ -78,8 +77,6 @@ router.post("/", jsonParser, (req, res) => {
   }
 
   let { email, password, firstName, lastName } = req.body;
-  firstName = firstName.trim();
-  lastName = lastName.trim();
 
   return Artist.find({ email })
     .count()

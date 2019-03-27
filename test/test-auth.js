@@ -11,32 +11,32 @@ const { JWT_SECRET } = require("../config");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
-describe("/api/auth", function() {
+describe("/api/auth", function () {
   const email = "example@email.com";
   const password = "unguessable";
   const firstName = "John";
   const lastName = "Doe";
 
-  before(function() {
+  before(function () {
     return runServer();
   });
 
-  after(function() {
+  after(function () {
     return closeServer();
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     return Artist.hashPassword(password).then(hashPass =>
       Artist.create({ email, password: hashPass, firstName, lastName })
     );
   });
 
-  afterEach(function() {
+  afterEach(function () {
     return Artist.deleteOne({ firstName: "John" });
   });
 
-  describe("/login", function() {
-    it("should reject requests with no credentials", function() {
+  describe("/login", function () {
+    it("should reject requests with no credentials", function () {
       return chai
         .request(app)
         .post("/api/auth/login")
@@ -46,7 +46,7 @@ describe("/api/auth", function() {
         });
     });
 
-    it("should reject requests with incorrect passwords", function() {
+    it("should reject requests with incorrect passwords", function () {
       return (
         chai
           .request(app)
@@ -60,7 +60,7 @@ describe("/api/auth", function() {
       );
     });
 
-    it("should return a valid JWT", function() {
+    it("should return a valid JWT", function () {
       return chai
         .request(app)
         .post("/api/auth/login")
@@ -68,19 +68,18 @@ describe("/api/auth", function() {
         .then(res => {
           expect(res).to.have.status(200);
           expect(res).to.be.an("object");
-
           const token = res.body.authToken;
           expect(token).to.be.a("string");
           const payload = jwt.verify(token, JWT_SECRET, {
             algorithm: ["HS256"]
           });
-          expect(payload.user).to.deep.equal({ email });
+          expect(payload.user.email).to.equal(email);
         });
     });
   });
 
-  describe("auth/refresh", function() {
-    it("should reject requests with no credentials", function() {
+  describe("auth/refresh", function () {
+    it("should reject requests with no credentials", function () {
       return chai
         .request(app)
         .post("/api/auth/login")
@@ -90,7 +89,7 @@ describe("/api/auth", function() {
         });
     });
 
-    it("should reject requests with an invalid token", function() {
+    it("should reject requests with an invalid token", function () {
       const token = jwt.sign(
         {
           email,
@@ -114,7 +113,7 @@ describe("/api/auth", function() {
         });
     });
 
-    it("should reject requests with an expired token", function() {
+    it("should reject requests with an expired token", function () {
       const token = jwt.sign(
         {
           user: {
@@ -141,7 +140,7 @@ describe("/api/auth", function() {
         });
     });
 
-    it("should return a valid auth token with a newer expiry date", function() {
+    it("should return a valid auth token with a newer expiry date", function () {
       const token = jwt.sign(
         {
           user: {

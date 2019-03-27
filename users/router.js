@@ -128,4 +128,16 @@ router.post("/", jsonParser, (req, res) => {
     });
 });
 
+router.delete('/', jwtAuth, (req, res) => {
+  Artist
+    .findByIdAndDelete(req.user.id)
+    .then(() => {
+      res.status(204).end();
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ code: 500, message: "Error: could not delete user" });
+    })
+});
+
 module.exports = { router };

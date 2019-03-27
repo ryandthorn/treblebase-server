@@ -27,7 +27,7 @@ describe("/api/users", function () {
   });
 
   afterEach(function () {
-    return Artist.deleteOne({ firstName: "John" });
+    return Artist.deleteOne({ email: "example@email.com" });
   });
 
   it("should retrieve serialized user info by ID in JWT on GET", function () {
@@ -96,5 +96,30 @@ describe("/api/users", function () {
         expect(res.body.message).to.equal("Missing field");
         expect(res.body.location).to.equal("lastName");
       });
+  });
+
+  it("should delete a user by ID in JWT on DELETE", function () {
+    return chai
+      .request(app)
+      .post("/api/users")
+      .send(user)
+      .then(res => {
+        expect(res).to.have.status(201)
+        return chai
+          .request(app)
+          .post("/api/auth/login")
+          .send({ email, password })
+          .then(res => {
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.key("authToken");
+            return chai
+              .request(app)
+              .delete("/api/users")
+              .set({ Authorization: `Bearer ${res.body.authToken}` })
+              .then(res => {
+                expect(res).to.have.status(204);
+              })
+          })
+      })
   });
 });

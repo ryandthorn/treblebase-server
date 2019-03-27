@@ -23,15 +23,32 @@ const ArtistSchema = mongoose.Schema({
   photos: [{ type: String, trim: true }],
   headshot: { type: String, trim: true },
   bio: { type: String, trim: true },
-  resumeUrl: { type: String, trim: true }
+  resume: { type: String, trim: true }
 });
 
 ArtistSchema.methods.serialize = function () {
   return {
+    firstName: this.firstName,
+    lastName: this.lastName,
+    email: this.email,
+    website: this.website,
+    region: this.region,
+    location: this.location,
+    age: this.age,
+    recordings: this.recordings,
+    photos: this.photos,
+    headshot: this.headshot,
+    bio: this.bio,
+    resumeUrl: this.resume
+  };
+};
+
+ArtistSchema.virtual("auth").get(function () {
+  return {
     email: this.email,
     id: this._id
   };
-};
+});
 
 ArtistSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;

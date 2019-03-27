@@ -1,10 +1,24 @@
 "use strict";
 const express = require("express");
 const bodyParser = require("body-parser");
+const passport = require("passport");
 const { Artist } = require("./models");
 
 const jsonParser = bodyParser.json();
 const router = express.Router();
+const jwtAuth = passport.authenticate("jwt", { session: false });
+
+router.get("/", jwtAuth, (req, res) => {
+  Artist
+    .findById(req.user.id)
+    .then(user => {
+      res.status(200).send(user.serialize());
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(401).send({ message: "Unauthorized" });
+    });
+});
 
 router.post("/", jsonParser, (req, res) => {
   const requiredFields = ["email", "password", "firstName", "lastName"];
@@ -102,7 +116,7 @@ router.post("/", jsonParser, (req, res) => {
       });
     })
     .then(user => {
-      return res.status(201).json(user.serialize());
+      return res.status(201).json(user.auth);
     })
     .catch(err => {
       // Forward validation errors on to the client, otherwise give a 500

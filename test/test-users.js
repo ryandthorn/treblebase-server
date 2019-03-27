@@ -30,6 +30,39 @@ describe("/api/users", function () {
     return Artist.deleteOne({ firstName: "John" });
   });
 
+  it("should retrieve serialized user info by ID in JWT on GET", function () {
+    // login
+    // check JWT data
+    // use ID to GET user info
+    const testUser = {
+      firstName: "Test",
+      lastName: "User",
+      email: "test@email.com",
+      password: "thinkful999"
+    }
+
+    return chai
+      .request(app)
+      .post('/api/auth/login')
+      .send({ email: testUser.email, password: testUser.password })
+      .then(res => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.key("authToken");
+        return res.body.authToken;
+      })
+      .then(JWT => {
+        return chai
+          .request(app)
+          .get('/api/users')
+          .set({ Authorization: `Bearer ${JWT}` })
+          .then(res => {
+            expect(res).to.have.status(200);
+            expect(res.body).to.contain.keys("email", "firstName", "lastName");
+            expect(res.body.email).to.equal("test@email.com");
+          });
+      });
+  });
+
   it("should create a new user on POST", function () {
     return chai
       .request(app)

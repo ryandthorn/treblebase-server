@@ -8,6 +8,8 @@ const jsonParser = bodyParser.json();
 const router = express.Router();
 const jwtAuth = passport.authenticate("jwt", { session: false });
 
+router.use(jsonParser);
+
 router.get("/", jwtAuth, (req, res) => {
   Artist
     .findById(req.user.id)
@@ -125,6 +127,30 @@ router.post("/", jsonParser, (req, res) => {
         return res.status(err.code).json(err);
       }
       res.status(500).json({ code: 500, message: "Internal server error" });
+    });
+});
+
+router.put('/', jwtAuth, (req, res) => {
+  const updates = {};
+  const updateableFields = ["firstName", "lastName", "website", "region", "location", "age", "recordings", "photos", "headshot", "bio", "resume"];
+  for (const key in req.body) {
+    if (updateableFields.includes(key)) {
+      updates[key] = req.body[key];
+    } else {
+      return res.status(400).json({ message: `Error: cannot update field '${key}'` });
+    }
+  }
+
+  Artist
+    .findOneAndUpdate({ _id: req.user.id }, { $set: updates }, { new: true })
+    .then(user => {
+      if (!user) {
+        res.status(404).json({ message: "Error: user not found" });
+      }
+      res.status(200).json(user.serialize());
+    })
+    .catch(err => {
+      console.error(err);
     });
 });
 

@@ -39,7 +39,7 @@ ArtistSchema.methods.serialize = function () {
     photos: this.photos,
     headshot: this.headshot,
     bio: this.bio,
-    resumeUrl: this.resume
+    resume: this.resume
   };
 };
 

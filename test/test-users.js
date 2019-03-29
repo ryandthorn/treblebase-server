@@ -98,6 +98,82 @@ describe("/api/users", function () {
       });
   });
 
+  describe("PUT", function () {
+    let jwt;
+
+    beforeEach(function () {
+      return chai
+        .request(app)
+        .post("/api/users")
+        .send(user)
+        .then(() => {
+          return chai
+            .request(app)
+            .post("/api/auth/login")
+            .send({ email, password })
+            .then(res => {
+              jwt = res.body.authToken;
+            });
+        });
+    });
+
+    it("should modify and return user info on success", function () {
+      return chai
+        .request(app)
+        .put("/api/users")
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send({ resume: "Added", firstName: "Modified" })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body.resume).to.equal("Added");
+          expect(res.body.firstName).to.equal("Modified");
+        })
+    });
+
+    it("should error when a user is not found", function () {
+      return chai
+        .request(app)
+        .delete("/api/users")
+        .set({ Authorization: `Bearer ${jwt}` })
+        .then(() => {
+          return chai
+            .request(app)
+            .put("/api/users")
+            .set({ Authorization: `Bearer ${jwt}` })
+            .send({ resume: "Added", firstName: "Modified" })
+            .then(res => {
+              expect(res).to.have.status(404);
+              expect(res.body).to.deep.equal({ message: 'Error: user not found' });
+            });
+        })
+
+    });
+
+    it("should error when valid field is not modifiable", function () {
+      return chai
+        .request(app)
+        .put("/api/users")
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send({ email: "cannot@modify.this" })
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res.body).to.deep.equal({ message: "Error: cannot update field 'email'" })
+        });
+    });
+
+    it("should error when field is invalid", function () {
+      return chai
+        .request(app)
+        .put("/api/users")
+        .set({ Authorization: `Bearer ${jwt}` })
+        .send({ invalid: "field" })
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res.body.message).to.equal("Error: cannot update field 'invalid'");
+        });
+    })
+  });
+
   it("should delete a user by ID in JWT on DELETE", function () {
     return chai
       .request(app)

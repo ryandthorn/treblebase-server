@@ -1,8 +1,10 @@
 "use strict";
 const express = require("express");
-const router = express.Router();
+const bodyParser = require("body-parser");
 const { Post } = require("./models");
-router.use(express.json());
+
+const router = express.Router();
+const jsonParser = bodyParser.json();
 
 router.get("/", (req, res) => {
   const options = {};
@@ -19,46 +21,27 @@ router.get("/", (req, res) => {
     });
 });
 
-router.put("/apply/:postID", (req, res) => {
-  const requiredFields = ["id", "applicant"];
-  for (let i = 0; i < requiredFields.length; i++) {
-    const field = requiredFields[i];
-    if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`;
-      console.error(message);
-      return res.status(400).send(message);
-    }
+router.put("/apply/:postID", jsonParser, (req, res) => {
+  if (!req.body.applicant) {
+    return res.status(400).end();
   }
-  if (req.params.postID !== req.body.id) {
-    const message = `Request path id (${req.params.id}) and request body id (${
-      req.body.id
-    }) must match`;
-    console.error(message);
-    return res.status(400).send(message);
-  }
-  Post.findOne({ _id: req.params.postID }).then(post => {
-    const duplicate = post.applicants.reduce(
-      (acc, cur) => (cur.email === req.body.applicant.email ? ++acc : acc),
-      0
-    );
-    if (duplicate) {
-      const message = `You have already applied to this post (email: ${
-        req.body.applicant.email
-      })`;
-      return res.status(400).send(message);
-    }
-
-    Post.updateOne(
-      {
-        _id: req.params.postID
-      },
-      { $push: { applicants: req.body.applicant } }
-    )
-      .then(() => res.status(204).end())
-      .catch(err => {
-        console.error(err);
-        res.status(500).json({ message: "Internal server error" });
-      });
-  });
+  Post
+    .findOne({ _id: req.params.postID })
+    .then(post => {
+      const duplicate = post.applicants.reduce(
+        (acc, cur) => (cur.email === req.body.applicant.email ? ++acc : acc),
+        0
+      );
+      if (duplicate) {
+        const message = `You have already applied to this post (email: ${req.body.applicant.email})`;
+        return res.status(400).send(message);
+      }
+      console.log({ prepush: post })
+      post.applicants.push(req.body.applicant);
+      console.log({ postpush: post })
+      return post.save();
+    })
+    .then(() => res.status(204).end())
+    .catch(err => console.error(err));
 });
 module.exports = { router };

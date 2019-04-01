@@ -1,13 +1,25 @@
 "use strict";
 const mongoose = require("mongoose");
 
+const applicantSchema = mongoose.Schema({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  instrument: { type: String, required: true },
+  recordings: [String],
+  email: { type: String, required: true },
+  bio: String,
+  resume: String,
+  region: { type: String, required: true },
+  location: { type: String, required: true }
+});
+
 const postSchema = mongoose.Schema({
   datePosted: Date,
   postedBy: String,
   company: String,
   title: String,
   content: String,
-  applicants: [Object],
+  applicants: [applicantSchema],
   open: Boolean,
   fee: String,
   picture: String,
@@ -15,7 +27,7 @@ const postSchema = mongoose.Schema({
   location: String
 });
 
-postSchema.methods.serialize = function() {
+postSchema.methods.serialize = function () {
   return {
     id: this._id,
     postedBy: this.postedBy,

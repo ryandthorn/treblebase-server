@@ -78,7 +78,7 @@ describe("/api/auth", function () {
     });
   });
 
-  describe("auth/refresh", function () {
+  describe("/refresh", function () {
     it("should reject requests with no credentials", function () {
       return chai
         .request(app)

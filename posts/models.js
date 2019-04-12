@@ -40,7 +40,7 @@ postSchema.methods.serialize = function() {
     title: this.title,
     content: this.content,
     applicants: this.applicants.length,
-    open: this.open,
+    status: this.status,
     fee: this.fee,
     picture: this.picture,
     region: this.region,

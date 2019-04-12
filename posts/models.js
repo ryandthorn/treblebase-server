@@ -25,7 +25,7 @@ const postSchema = mongoose.Schema({
   title: String,
   content: String,
   applicants: [applicantSchema],
-  open: String,
+  status: String,
   fee: String,
   picture: String,
   region: String,

@@ -30,6 +30,7 @@ const ArtistSchema = mongoose.Schema({
     minlength: 8,
     maxlength: 72
   },
+  instrument: { type: String, trim: true },
   website: { type: String, trim: true },
   region: String,
   location: { type: String, trim: true },
@@ -41,7 +42,7 @@ const ArtistSchema = mongoose.Schema({
   resume: { type: String, trim: true }
 });
 
-ArtistSchema.methods.serialize = function() {
+ArtistSchema.methods.serialize = function () {
   return {
     firstName: this.firstName,
     lastName: this.lastName,
@@ -49,6 +50,7 @@ ArtistSchema.methods.serialize = function() {
     website: this.website,
     region: this.region,
     location: this.location,
+    instrument: this.instrument,
     age: this.age,
     recordings: this.recordings,
     photos: this.photos,
@@ -58,22 +60,22 @@ ArtistSchema.methods.serialize = function() {
   };
 };
 
-ArtistSchema.virtual("auth").get(function() {
+ArtistSchema.virtual("auth").get(function () {
   return {
     email: this.email,
     id: this._id
   };
 });
 
-ArtistSchema.virtual("fullName").get(function() {
+ArtistSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-ArtistSchema.methods.validatePassword = function(password) {
+ArtistSchema.methods.validatePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-ArtistSchema.statics.hashPassword = function(password) {
+ArtistSchema.statics.hashPassword = function (password) {
   return bcrypt.hash(password, 10);
 };
 

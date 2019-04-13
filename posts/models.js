@@ -15,7 +15,9 @@ const applicantSchema = mongoose.Schema({
   bio: String,
   resume: String,
   region: { type: String, required: true },
-  location: { type: String, required: true }
+  location: { type: String, required: true },
+  website: String,
+  headshot: String
 });
 
 const postSchema = mongoose.Schema({
@@ -32,7 +34,7 @@ const postSchema = mongoose.Schema({
   location: String
 });
 
-postSchema.methods.serialize = function() {
+postSchema.methods.serialize = function () {
   return {
     id: this._id,
     postedBy: this.postedBy,

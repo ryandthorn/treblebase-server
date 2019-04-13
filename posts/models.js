@@ -41,7 +41,7 @@ postSchema.methods.serialize = function () {
     company: this.company,
     title: this.title,
     content: this.content,
-    applicants: this.applicants.length,
+    applicants: this.applicants,
     status: this.status,
     fee: this.fee,
     picture: this.picture,

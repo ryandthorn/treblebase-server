@@ -142,9 +142,10 @@ router.put("/", jwtAuth, (req, res) => {
     "photos",
     "headshot",
     "bio",
-    "resume"
+    "resume",
+    "instrument"
   ];
-  console.log({ body: req.body });
+
   for (const key in req.body) {
     if (updateableFields.includes(key)) {
       updates[key] = req.body[key];

@@ -11,8 +11,7 @@ const jwtAuth = passport.authenticate("jwt", { session: false });
 router.use(jsonParser);
 
 router.get("/", jwtAuth, (req, res) => {
-  Artist
-    .findById(req.user.id)
+  Artist.findById(req.user.id)
     .then(user => {
       res.status(200).send(user.serialize());
     })
@@ -130,19 +129,38 @@ router.post("/", jsonParser, (req, res) => {
     });
 });
 
-router.put('/', jwtAuth, (req, res) => {
+router.put("/", jwtAuth, (req, res) => {
   const updates = {};
-  const updateableFields = ["firstName", "lastName", "website", "region", "location", "age", "recordings", "photos", "headshot", "bio", "resume"];
+  const updateableFields = [
+    "firstName",
+    "lastName",
+    "website",
+    "region",
+    "location",
+    "age",
+    "recordings",
+    "photos",
+    "headshot",
+    "bio",
+    "resume",
+    "instrument"
+  ];
+
   for (const key in req.body) {
     if (updateableFields.includes(key)) {
       updates[key] = req.body[key];
     } else {
-      return res.status(400).json({ message: `Error: cannot update field '${key}'` });
+      return res
+        .status(400)
+        .json({ message: `Error: cannot update field '${key}'` });
     }
   }
 
-  Artist
-    .findOneAndUpdate({ _id: req.user.id }, { $set: updates }, { new: true })
+  Artist.findOneAndUpdate(
+    { _id: req.user.id },
+    { $set: updates },
+    { new: true }
+  )
     .then(user => {
       if (!user) {
         res.status(404).json({ message: "Error: user not found" });
@@ -154,16 +172,17 @@ router.put('/', jwtAuth, (req, res) => {
     });
 });
 
-router.delete('/', jwtAuth, (req, res) => {
-  Artist
-    .findByIdAndDelete(req.user.id)
+router.delete("/", jwtAuth, (req, res) => {
+  Artist.findByIdAndDelete(req.user.id)
     .then(() => {
       res.status(204).end();
     })
     .catch(err => {
       console.error(err);
-      res.status(500).json({ code: 500, message: "Error: could not delete user" });
-    })
+      res
+        .status(500)
+        .json({ code: 500, message: "Error: could not delete user" });
+    });
 });
 
 module.exports = { router };

@@ -36,9 +36,7 @@ router.put("/apply/:postID", jsonParser, (req, res) => {
         const message = `You have already applied to this post (email: ${req.body.applicant.email})`;
         return res.status(400).send(message);
       }
-      console.log({ prepush: post })
       post.applicants.push(req.body.applicant);
-      console.log({ postpush: post })
       return post.save();
     })
     .then(() => res.status(204).end())

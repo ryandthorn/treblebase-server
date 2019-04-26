@@ -1,7 +1,6 @@
 "use strict";
 const express = require("express");
 const cors = require("cors");
-const morgan = require("morgan");
 const passport = require("passport");
 const mongoose = require("mongoose");
 const { PORT, TEST_DATABASE_URL } = require("./config");
@@ -16,7 +15,6 @@ passport.use(localStrategy);
 passport.use(jwtStrategy);
 mongoose.set("useCreateIndex", true);
 app.use(cors());
-app.use(morgan("common"));
 
 app.use("/api/users/", usersRouter);
 app.use("/api/auth/", authRouter);

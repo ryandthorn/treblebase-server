@@ -3,7 +3,7 @@ global.TEST_DATABASE_URL = "mongodb://localhost/test";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const { app, runServer, closeServer } = require("../server");
-const { Post } = require('../posts');
+const { Post } = require("../posts");
 let jwt;
 
 const expect = chai.expect;
@@ -14,7 +14,12 @@ const testUser = {
   lastName: "User",
   email: "test@email.com",
   password: "thinkful999"
-}
+};
+
+const testRecordings = [
+  { url: "foo.com", title: "Recording1" },
+  { url: "bar.com", title: "Recording2" }
+];
 
 const testPost = {
   datePosted: "Monday, February 11, 2019 2:23 AM",
@@ -33,7 +38,7 @@ const testPost = {
       firstName: "Dickerson",
       lastName: "Copeland",
       instrument: "Percussion",
-      recordings: ["recording1url", "recording2url", "recording3url"],
+      recordings: testRecordings,
       email: "dickerson.copeland@gmail.com",
       bio:
         "Sint elit do duis cupidatat ex minim consequat aute dolore voluptate eiusmod et. Nisi cillum consectetur proident sit adipisicing pariatur est dolor cillum esse est sunt sit. Deserunt reprehenderit ea velit eu. Lorem est veniam dolore consequat nulla quis fugiat fugiat.\n\nAd fugiat proident ea deserunt Lorem. Eu labore incididunt aliqua dolor laboris enim voluptate ut incididunt. Fugiat proident laborum non fugiat aliquip.",
@@ -45,7 +50,7 @@ const testPost = {
       firstName: "Joanna",
       lastName: "Britt",
       instrument: "Percussion",
-      recordings: ["recording1url", "recording2url", "recording3url"],
+      recordings: testRecordings,
       email: "joanna.britt@gmail.com",
       bio:
         "Aliquip sit reprehenderit elit non pariatur qui sint magna dolore dolore. Amet dolore commodo elit elit velit enim deserunt minim tempor occaecat laborum ipsum ullamco. In amet nostrud enim ad aliquip minim id ea aliqua. Id velit tempor nostrud nisi anim consectetur est. Qui consectetur in ad fugiat pariatur duis ipsum aliquip. Reprehenderit eu ad dolore quis tempor cupidatat laborum pariatur cupidatat sit excepteur velit.\n\nIpsum ut dolore nulla amet qui laborum. Nulla esse aliqua ea consectetur commodo nostrud et nisi reprehenderit. Elit culpa cupidatat ex duis culpa aliqua est fugiat aliqua ullamco. Officia velit exercitation ipsum velit ipsum voluptate ut voluptate exercitation laboris culpa duis enim incididunt. Voluptate officia laborum consectetur culpa consectetur est eu eiusmod nulla cillum.",
@@ -57,7 +62,7 @@ const testPost = {
       firstName: "Lilia",
       lastName: "Le",
       instrument: "Percussion",
-      recordings: ["recording1url", "recording2url", "recording3url"],
+      recordings: testRecordings,
       email: "lilia.le@gmail.com",
       bio:
         "Nostrud duis veniam et consequat ex labore eu quis nostrud irure do. Aliqua nisi cupidatat nisi labore cillum exercitation veniam in eu eu duis quis dolore consequat. Non deserunt occaecat ex dolore exercitation ea sit dolor. Ad cupidatat occaecat sunt tempor cupidatat deserunt sit. Et exercitation qui fugiat sint id. Cupidatat laborum ea duis quis. Anim do do est ullamco commodo laborum cillum in irure eiusmod nostrud magna enim.\n\nEnim ut Lorem elit reprehenderit qui aute irure voluptate exercitation eu officia nisi incididunt ullamco. Incididunt adipisicing mollit dolore amet do adipisicing. Mollit tempor nostrud aliqua velit est elit elit aliqua voluptate deserunt ad.",
@@ -72,7 +77,7 @@ const testApplicant = {
   firstName: "Test",
   lastName: "Applicant",
   instrument: "Bassoon",
-  recordings: ["recording1url", "recording2url", "recording3url"],
+  recordings: testRecordings,
   email: "test.applicant@email.com",
   bio: "Test bio",
   resume: "Test resume",
@@ -80,32 +85,32 @@ const testApplicant = {
   location: "Los Angeles, CA"
 };
 
-describe("/api/posts", function () {
-  before(function () {
+describe("/api/posts", function() {
+  before(function() {
     return runServer();
   });
-  before(function () {
+  before(function() {
     return chai
       .request(app)
-      .post('/api/auth/login')
+      .post("/api/auth/login")
       .send({ email: testUser.email, password: testUser.password })
       .then(res => {
         jwt = res.body.authToken;
-      })
+      });
   });
-  before(function () {
+  before(function() {
     return Post.create(testPost);
   });
 
-  after(function () {
+  after(function() {
     return Post.deleteOne({ postedBy: testPost.postedBy });
   });
-  after(function () {
+  after(function() {
     return closeServer();
   });
 
-  describe("READ", function () {
-    it("should get all posts on GET", function () {
+  describe("READ", function() {
+    it("should get all posts on GET", function() {
       return chai
         .request(app)
         .get("/api/posts")
@@ -118,7 +123,7 @@ describe("/api/posts", function () {
         });
     });
 
-    it("should filter posts using query parameters", function () {
+    it("should filter posts using query parameters", function() {
       return chai
         .request(app)
         .get("/api/posts/?location=Seattle,%20WA")
@@ -133,33 +138,28 @@ describe("/api/posts", function () {
     });
   });
 
-  describe("UPDATE", function () {
-    // NOTE: some sort of race condition happening. 
+  describe("UPDATE", function() {
+    // NOTE: some sort of race condition happening.
     // Test passes but throws VersionError: no matching document found for id <id> version 0 modifiedPaths "applicants"
-    it("should add a new applicant to a specified post on PUT /:postID", function () {
-      Post
-        .findOne({ postedBy: testPost.postedBy })
-        .then(post => {
-          return chai
-            .request(app)
-            .put(`/api/posts/apply/${post._id}`)
-            .set({
-              Authorization: `Bearer ${jwt}`
-            })
-            .send({ applicant: testApplicant })
-            .then(res => {
-              expect(res).to.have.status(204);
-              Post
-                .findOne({ postedBy: testPost.postedBy })
-                .then(post => {
-                  console.log(post.applicants[3]);
-                  const lastEntry = post.applicants[3];
-                  expect(lastEntry.email).to.equal(testApplicant.email);
-                }
-                );
-            })
-            .catch(err => console.error(err));
-        });
+    it("should add a new applicant to a specified post on PUT /:postID", function() {
+      Post.findOne({ postedBy: testPost.postedBy }).then(post => {
+        return chai
+          .request(app)
+          .put(`/api/posts/apply/${post._id}`)
+          .set({
+            Authorization: `Bearer ${jwt}`
+          })
+          .send({ applicant: testApplicant })
+          .then(res => {
+            expect(res).to.have.status(204);
+            Post.findOne({ postedBy: testPost.postedBy }).then(post => {
+              console.log(post.applicants[3]);
+              const lastEntry = post.applicants[3];
+              expect(lastEntry.email).to.equal(testApplicant.email);
+            });
+          })
+          .catch(err => console.error(err));
+      });
     });
   });
 });

@@ -10,7 +10,7 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-describe("/api/users", function () {
+describe("/api/users", function() {
   const email = "example@email.com";
   const password = "unguessable";
   const firstName = "John";
@@ -18,20 +18,20 @@ describe("/api/users", function () {
 
   const user = { email, password, firstName, lastName };
 
-  before(function () {
+  before(function() {
     return runServer();
   });
 
-  after(function () {
+  after(function() {
     return closeServer();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     return Artist.deleteOne({ email: "example@email.com" });
   });
 
-  describe("CREATE", function () {
-    it("should create a new user on POST", function () {
+  describe("CREATE", function() {
+    it("should create a new user on POST", function() {
       return chai
         .request(app)
         .post("/api/users")
@@ -53,7 +53,7 @@ describe("/api/users", function () {
         });
     });
 
-    it("should return a validation error on invalid POST request", function () {
+    it("should return a validation error on invalid POST request", function() {
       return chai
         .request(app)
         .post("/api/users")
@@ -67,42 +67,52 @@ describe("/api/users", function () {
     });
   });
 
-  describe("READ", function () {
-    it("should retrieve serialized user info by ID in JWT on GET", function () {
+  describe("READ", function() {
+    it("should retrieve serialized user info by ID in JWT on GET", function() {
       const testUser = {
         firstName: "Test",
         lastName: "User",
         email: "test@email.com",
         password: "thinkful999"
-      }
+      };
 
       return chai
         .request(app)
-        .post('/api/auth/login')
-        .send({ email: testUser.email, password: testUser.password })
-        .then(res => {
-          expect(res).to.have.status(200);
-          expect(res.body).to.have.key("authToken");
-          return res.body.authToken;
-        })
-        .then(JWT => {
+        .post("/api/users")
+        .send(testUser)
+        .then(() => {
           return chai
             .request(app)
-            .get('/api/users')
-            .set({ Authorization: `Bearer ${JWT}` })
+            .post("/api/auth/login")
+            .send({ email: testUser.email, password: testUser.password })
             .then(res => {
               expect(res).to.have.status(200);
-              expect(res.body).to.contain.keys("email", "firstName", "lastName");
-              expect(res.body.email).to.equal("test@email.com");
+              expect(res.body).to.have.key("authToken");
+              return res.body.authToken;
+            })
+            .then(JWT => {
+              return chai
+                .request(app)
+                .get("/api/users")
+                .set("Authorization", `Bearer ${JWT}`)
+                .then(res => {
+                  expect(res).to.have.status(200);
+                  expect(res.body).to.contain.keys(
+                    "email",
+                    "firstName",
+                    "lastName"
+                  );
+                  expect(res.body.email).to.equal("test@email.com");
+                });
             });
         });
     });
   });
 
-  describe("UPDATE", function () {
+  describe("UPDATE", function() {
     let jwt;
 
-    beforeEach(function () {
+    beforeEach(function() {
       return chai
         .request(app)
         .post("/api/users")
@@ -118,7 +128,7 @@ describe("/api/users", function () {
         });
     });
 
-    it("should modify and return user info on success", function () {
+    it("should modify and return user info on success", function() {
       return chai
         .request(app)
         .put("/api/users")
@@ -128,10 +138,10 @@ describe("/api/users", function () {
           expect(res).to.have.status(200);
           expect(res.body.resume).to.equal("Added");
           expect(res.body.firstName).to.equal("Modified");
-        })
+        });
     });
 
-    it("should error when a user is not found", function () {
+    it("should error when a user is not found", function() {
       return chai
         .request(app)
         .delete("/api/users")
@@ -144,13 +154,14 @@ describe("/api/users", function () {
             .send({ resume: "Added", firstName: "Modified" })
             .then(res => {
               expect(res).to.have.status(404);
-              expect(res.body).to.deep.equal({ message: 'Error: user not found' });
+              expect(res.body).to.deep.equal({
+                message: "Error: user not found"
+              });
             });
-        })
-
+        });
     });
 
-    it("should error when valid field is not modifiable", function () {
+    it("should error when valid field is not modifiable", function() {
       return chai
         .request(app)
         .put("/api/users")
@@ -158,11 +169,13 @@ describe("/api/users", function () {
         .send({ email: "cannot@modify.this" })
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body).to.deep.equal({ message: "Error: cannot update field 'email'" })
+          expect(res.body).to.deep.equal({
+            message: "Error: cannot update field 'email'"
+          });
         });
     });
 
-    it("should error when field is invalid", function () {
+    it("should error when field is invalid", function() {
       return chai
         .request(app)
         .put("/api/users")
@@ -170,19 +183,21 @@ describe("/api/users", function () {
         .send({ invalid: "field" })
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Error: cannot update field 'invalid'");
+          expect(res.body.message).to.equal(
+            "Error: cannot update field 'invalid'"
+          );
         });
     });
   });
 
-  describe("DELETE", function () {
-    it("should delete a user by ID in JWT on DELETE", function () {
+  describe("DELETE", function() {
+    it("should delete a user by ID in JWT on DELETE", function() {
       return chai
         .request(app)
         .post("/api/users")
         .send(user)
         .then(res => {
-          expect(res).to.have.status(201)
+          expect(res).to.have.status(201);
           return chai
             .request(app)
             .post("/api/auth/login")
